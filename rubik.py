@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from pprint import pprint
+import random
 
 class Rubik:
-    """Rubik simulation class"""
+    """Rubik's cube simulation class"""
 
     _colors = "W", "Y", "B", "G", "R", "O"
     _sides = "F", "B", "U", "D", "R", "L"
@@ -19,7 +19,8 @@ class Rubik:
     def __init__(self):
         self._layout = {self._sides[side] : [[self._colors[side] for x in range(3)] for y in range(3)] for side in range(6)}
         self._rotate_counter = 0;
-        
+        random.seed()
+
     def _get_vector_data(self, vector):
         side= self._layout[vector[0]]
         return [side[cell[0]][cell[1]] for cell in vector[1:]]
@@ -86,15 +87,42 @@ class Rubik:
                 self._set_vector_data(self._linked[side][i], self._get_vector_data(self._linked[side][i+1]))
             self._set_vector_data(self._linked[side][3], tfirst)
         self._rotate_counter += 1
-                
     
-rubik= Rubik();
+    def rotate_side_random(self):
+        self.rotate_side(random.choice(self._sides), 0.5 > random.random())
+        
+    def get_random_sequence(self, min_count = 100, max_count = 100):
+        result = "";
+        for i in range(random.randint(min_count, max_count) + 1):
+            result += random.choice(self._sides) + random.choice(["", "'"]) + ","
+        return result[:len(result)-1]
+        
+    def execute_sequence(self, sequence):
+        count = 0
+        for command in sequence.split(","):
+            command = command.strip()
+            print("'" + command + "'")
+            if len(command) == 0:
+                continue
+            # silly check    
+            if not command[0] in self._sides:
+                break
+            self.rotate_side(command[0], len(command) == 1)   
+        return count    
+    
+rubik = Rubik();
 
 rubik.print_layout();
 print("solved on", rubik.get_solve_percention(), "%")
-rubik.rotate_side("F")
-print()
-rubik.print_layout();
+print("gettind some entropy ...")
+rubik.execute_sequence(rubik.get_random_sequence())
 print("solved on", rubik.get_solve_percention(), "%")
-pprint(rubik._layout, width= 25)
-print(rubik.get_rotate_count())
+rubik.reset_rotate_count()
+print("begin solving ...")
+max_percent = 0
+while not rubik.is_solved():
+    rubik.rotate_side_random();
+    if rubik.get_rotate_count() % 1000 == 0:
+        cur_percent = rubik.get_solve_percention();
+        max_percent = max(max_percent, cur_percent)
+        print("solved on", cur_percent, "%, max", max_percent, "%, ", rubik.get_rotate_count(), "moves")
