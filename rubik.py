@@ -3,7 +3,7 @@
 from pprint import pprint
 
 class Rubik:
-    """Rubik solving class"""
+    """Rubik simulation class"""
 
     _colors = "W", "Y", "B", "G", "R", "O"
     _sides = "F", "B", "U", "D", "R", "L"
@@ -18,7 +18,8 @@ class Rubik:
     
     def __init__(self):
         self._layout = {self._sides[side] : [[self._colors[side] for x in range(3)] for y in range(3)] for side in range(6)}
- 
+        self._rotate_counter = 0;
+        
     def _get_vector_data(self, vector):
         side= self._layout[vector[0]]
         return [side[cell[0]][cell[1]] for cell in vector[1:]]
@@ -29,7 +30,6 @@ class Rubik:
             side[cell[0]][cell[1]] = color
     
     def _print_side(self, side, tab):
-
         for y in range(2, -1, -1):
             print(tab, end= "")
             for s in side:
@@ -37,21 +37,32 @@ class Rubik:
                     print(self._layout[s][x][y] + " ", end= "")
             print()
     
-    def printLayout(self):
+    def print_layout(self):
         # print U
         self._print_side(["U"], " " * 6)
         self._print_side(["L", "F", "R"], "")
         self._print_side(["D"], " " * 6)
         self._print_side(["B"], " " * 6)
         
+    def get_rotate_count(self):
+        return self._rotate_counter
         
+    def reset_rotate_count(self):
+        self._rotate_counter = 0
         
-    def isSolved(self):
+    def is_solved(self):
         for side in self._layout:
             sidecolor= self._layout[side][1][1]
             if len([self._layout[side][x][y] for x in range(3) for y in range(3) if self._layout[side][x][y] != sidecolor]) != 0: 
                 return False
         return True
+        
+    def get_solve_percention(self):
+        count = 0
+        for side in self._layout:
+            sidecolor= self._layout[side][1][1]
+            count += len([self._layout[side][x][y] for x in range(3) for y in range(3) if self._layout[side][x][y] == sidecolor])
+        return round(count / 54 * 100)
     
     def rotate_side(self, side, CW = True):
         """Rotate one side of cube CW or CCW"""
@@ -74,13 +85,16 @@ class Rubik:
             for i in range(3):
                 self._set_vector_data(self._linked[side][i], self._get_vector_data(self._linked[side][i+1]))
             self._set_vector_data(self._linked[side][3], tfirst)
+        self._rotate_counter += 1
                 
     
 rubik= Rubik();
+
+rubik.print_layout();
+print("solved on", rubik.get_solve_percention(), "%")
+rubik.rotate_side("F")
+print()
+rubik.print_layout();
+print("solved on", rubik.get_solve_percention(), "%")
 pprint(rubik._layout, width= 25)
-print("is solved:", rubik.isSolved())
-rubik.printLayout();
-
-rubik.rotate_side("L")
-
-rubik.printLayout();
+print(rubik.get_rotate_count())
