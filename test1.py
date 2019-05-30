@@ -1,16 +1,24 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from pprint import pprint
+from rubik import Rubik
 
-matrix= [[1,2,3],
-        [4,5,6],
-        [7,8,9]]
+InitMoveRange = 10, 20
 
-pprint(matrix, width= 20)
-print()
-matrix1= [[row[i] for row in matrix] for i in range(2, -1, -1)]
-print()
-pprint(matrix1, width=20)
-matrix2= [[matrix[row][i] for row in range(2, -1, -1)] for i in range(3)]
-print()
-pprint(matrix2, width=20)
+rubik = Rubik()
+print("solved on", rubik.get_solution_percent())
+
+InitialSequence = rubik.get_random_sequence(InitMoveRange[0], InitMoveRange[1])
+print("sequence:", InitialSequence)
+
+rubik.execute_sequence(InitialSequence)
+print("solved on", rubik.get_solution_percent())
+
+ReverseSequence = rubik.reverse_sequence(InitialSequence)
+print("sequence:", ReverseSequence)
+
+rubik.execute_sequence(ReverseSequence)
+print("solved on", rubik.get_solution_percent())
+
+
+
+
