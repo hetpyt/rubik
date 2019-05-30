@@ -1,2 +1,0 @@
-god_algoritm.py
-pause
