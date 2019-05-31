@@ -51,6 +51,7 @@ class Rubik:
                 for x in range(3):
                     print(self._layout[s][x][y] + " ", end= "")
             print()
+            
     def _get_solution_index(self):
         count = 0
         for side in self._layout:
