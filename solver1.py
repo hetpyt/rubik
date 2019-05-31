@@ -10,7 +10,10 @@ InitMoveRange = 10, 20
 RandomSequenceRange = 1, 5
 # максимальное количество проверенных комбинаций, не приведших к учеличению индекса решенности
 # по достижении данной величины происходит возврат состояния кубика к предыдущему сохраненному состоянию
-MaxUngoodSequences = 100000
+#MaxUngoodSequences = 100000
+MaxUngoodSequences = 0
+for i in range(RandomSequenceRange[0], RandomSequenceRange[1] + 1):
+    MaxUngoodSequences += 12 ** i * 2
 
 ### ИНИЦИАЛИЗАЦИЯ
 
@@ -54,7 +57,7 @@ while True:
     # генерируем последовательность
     CurrentSequence = rubik.get_random_sequence(RandomSequenceRange[0], RandomSequenceRange[1])
     # проверяем нет ли этой последовательности в списке тупиковых для текущего шага
-    if CurrentSequence in DeadendSequences[len(DeadendSequences)-1]:
+    if CurrentSequence in DeadendSequences[len(DeadendSequences) - 1]:
         continue
     # выполняем последователность
     rubik.execute_sequence(CurrentSequence)
@@ -74,7 +77,7 @@ while True:
         # устанавливаем текущим индексом решенности новый
         CurrentSolutionIndex = NewSolutionIndex
         
-        print("+ #", StepsCount, "SP", CurrentSolutionIndex * 100, "%, SL", len(",".join(Solution).split(",")), ", Mv", rubik.get_rotate_count())
+        print("+", StepsCount, "SP", CurrentSolutionIndex * 100, "%, SL", len(",".join(Solution).split(",")), ", Mv", rubik.get_rotate_count(), ",", Solution[len(Solution) - 1])
 
         # проверяем вдруг решен
         if CurrentSolutionIndex == 100.0:
@@ -89,7 +92,6 @@ while True:
             # сбрасываем счетчик последовательностей
             SequencesCountFromGoodLayout = 0
             # восстанавливаем последнюю удачную комбинацию, если такова существует
-            print(len(GoodLayouts))
             if len(GoodLayouts):
                 print("rollback to previous state")
                 StepsCount -= 1
@@ -101,12 +103,12 @@ while True:
                 # заодно удаляем тупиковую последовательность из решения
                 DeadendSequences[len(DeadendSequences) - 1].append(Solution.pop())
                 CurrentSolutionIndex = rubik._get_solution_index()
-                print("- #", StepsCount, "SP", CurrentSolutionIndex * 100, "%, SL", len(",".join(Solution).split(",")), ", Mv", rubik.get_rotate_count())
+                print("-", StepsCount, "SP", CurrentSolutionIndex * 100, "%, SL", len(",".join(Solution).split(",")), ", Mv", rubik.get_rotate_count())
 
 
     # вывод статистики каждые N комбинаций
-#    if rubik.get_rotate_count() % 10000 == 0:
-#        print("SP", CurrentSolutionIndex * 100, "%, SL", len(",".join(Solution).split(",")), ", BC", SequencesCountFromGoodLayout, ", Mv", rubik.get_rotate_count())
+    #if rubik.get_rotate_count() % 10000 == 0:
+        #print("SP", CurrentSolutionIndex * 100, "%, SL", len(",".join(Solution).split(",")), ", BC", SequencesCountFromGoodLayout, ", Mv", rubik.get_rotate_count())
         
 # если вдруг решение найдено то выведем его
 print("-" * 80)
