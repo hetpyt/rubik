@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import random
+from copy import deepcopy
 
 class Rubik:
     """Rubik's cube simulation class"""
@@ -39,10 +40,10 @@ class Rubik:
             side[cell[0]][cell[1]] = color
     
     def _get_layout(self):
-        return self._layout
+        return deepcopy(self._layout)
         
     def _set_layout(self, layout):
-        self._layout = layout
+        self._layout = deepcopy(layout)
         
     def _print_side(self, side, tab):
         for y in range(2, -1, -1):
