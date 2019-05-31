@@ -34,8 +34,12 @@ rubik.reset_rotate_count()
 
 # начало поиска
 print("begin solving ...")
+# текущее количество шагов - удачных комбинаций
+StepsCount = 0
 # список состояний кубика, в которых произошло увеличение индекса решенности
 GoodLayouts = []
+# список списков тупиковых комбинаций для каждого состояния
+DeadendSequences = [[]]
 # решение
 Solution = []
 # количество проверенных комбинаций c последнего увеличения индекса решенности
@@ -49,11 +53,16 @@ while True:
     CurrentLayout = rubik._get_layout()
     # генерируем последовательность
     CurrentSequence = rubik.get_random_sequence(RandomSequenceRange[0], RandomSequenceRange[1])
+    # проверяем нет ли этой последовательности в списке тупиковых для текущего шага
+    if CurrentSequence in DeadendSequences[len(DeadendSequences)-1]:
+        continue
     # выполняем последователность
     rubik.execute_sequence(CurrentSequence)
     # проверяем стало ли лучше
     NewSolutionIndex = rubik._get_solution_index()
     if NewSolutionIndex > CurrentSolutionIndex:
+        StepsCount += 1
+        DeadendSequences.append([])
         # состояние улучшилось - считаем ход удачным, записываем в решение
         Solution.append(CurrentSequence)
         # сохраним состояние кубика
@@ -65,7 +74,7 @@ while True:
         # устанавливаем текущим индексом решенности новый
         CurrentSolutionIndex = NewSolutionIndex
         
-        print("+ SP", CurrentSolutionIndex * 100, "%, SL", len(",".join(Solution).split(",")), ", Mv", rubik.get_rotate_count())
+        print("+ #", StepsCount, "SP", CurrentSolutionIndex * 100, "%, SL", len(",".join(Solution).split(",")), ", Mv", rubik.get_rotate_count())
 
         # проверяем вдруг решен
         if CurrentSolutionIndex == 100.0:
@@ -83,11 +92,16 @@ while True:
             print(len(GoodLayouts))
             if len(GoodLayouts):
                 print("rollback to previous state")
+                StepsCount -= 1
                 # удаляем текущее состояние и берем предыдущее
                 rubik._set_layout(GoodLayouts.pop())
-                Solution.pop()
+                # удаляем последний список для тупоковой последовательности
+                DeadendSequences.pop()
+                # добавляем тупиковую последовательность в списко тупиковых последовательностей предыдущего шага
+                # заодно удаляем тупиковую последовательность из решения
+                DeadendSequences[len(DeadendSequences) - 1].append(Solution.pop())
                 CurrentSolutionIndex = rubik._get_solution_index()
-                print("- SP", CurrentSolutionIndex * 100, "%, SL", len(",".join(Solution).split(",")), ", Mv", rubik.get_rotate_count())
+                print("- #", StepsCount, "SP", CurrentSolutionIndex * 100, "%, SL", len(",".join(Solution).split(",")), ", Mv", rubik.get_rotate_count())
 
 
     # вывод статистики каждые N комбинаций
