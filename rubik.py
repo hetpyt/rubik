@@ -121,11 +121,21 @@ class Rubik:
         # поворот случайной стороны в случайном направлении
         self.rotate_side(random.choice(self._sides), 0.5 > random.random())
         
-    def get_random_sequence(self, min_count = 100, max_count = 100):
-        result = ""
+    def get_random_move(self):
+        return random.choice(self._sides) + random.choice(["", "'"])
+        
+    def get_random_sequence(self, min_count = 1, max_count = 10):
+        result = []
         for i in range(random.randint(min_count, max_count)):
-            result += random.choice(self._sides) + random.choice(["", "'"]) + ","
-        return result[:len(result)-1]
+            newMove = self.get_random_move()
+            # проверка на обратный следом
+            while i > 0 and newMove == self.reverse_sequence(result[i - 1]):
+                newMove = self.get_random_move()
+            # проверка на три одинаковых подряд
+            while i > 1 and newMove == result[i - 1] == result[i - 2]:
+                newMove = self.get_random_move()
+            result.append(newMove)
+        return ",".join(result)
     
     def reverse_sequence(self, sequence):
         result = ""

@@ -7,16 +7,15 @@ from rubik import Rubik
 # диапазон длины начальной комбинации для "разборки" кубика
 InitMoveRange = 10, 20
 # диапазон для генерации случайных последовательностей
-RandomSequenceRange = 1, 5
+RandomSequenceRange = 1, 26
 # максимальное количество проверенных комбинаций, не приведших к учеличению индекса решенности
 # по достижении данной величины происходит возврат состояния кубика к предыдущему сохраненному состоянию
 #MaxUngoodSequences = 100000
-MaxUngoodSequences = 0
-for i in range(RandomSequenceRange[0], RandomSequenceRange[1] + 1):
-    MaxUngoodSequences += 12 ** i * 2
+MaxUngoodSequences = sum([12 ** i for i in range(RandomSequenceRange[0], RandomSequenceRange[1] + 1)]) * 2
 
 ### ИНИЦИАЛИЗАЦИЯ
 
+print("MaxUngoodSequences= ", MaxUngoodSequences)
 # создание объекта класса Rubik 
 rubik = Rubik();
 # печать процента решенности кубика
